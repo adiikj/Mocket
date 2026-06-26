@@ -1,0 +1,20 @@
+{
+  "name": "mocket",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A mock stock market — gamified trading simulator with virtual money, contests, and leaderboards.",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:web": "pnpm --filter @mocket/frontend dev",
+    "dev:api": "pnpm --filter @mocket/backend dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["bcrypt", "esbuild", "sharp", "unrs-resolver"]
+  }
+}
