@@ -3,7 +3,9 @@ import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
-const getStockData = asyncHandler(async (req, res, next) => {
+import { Request, Response, NextFunction } from 'express';
+
+const getStockData = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { symbol } = req.params;
 
     // Construct Yahoo Finance API URL for historical data (last 30 days)
@@ -17,7 +19,7 @@ const getStockData = asyncHandler(async (req, res, next) => {
             return next(new ApiError(500, `Error fetching data from Yahoo Finance ${symbol}`));
         }
 
-        const data = await response.json();
+        const data: any = await response.json();
 
         if (!data?.chart?.result || data.chart.result.length === 0) {
             console.error('No valid stock data received:', data);
@@ -41,15 +43,15 @@ const getStockData = asyncHandler(async (req, res, next) => {
         const slicedAdjClosePrices = adjClosePrices.slice(-dataLimit);
 
         // Calculate todayChange and percentageChange
-        let todayChange = null;
-        let percentageChange = null;
+        let todayChange: number | null = null;
+        let percentageChange: number | null = null;
 
         if (slicedAdjClosePrices.length >= 2) {
             const latestPrice = slicedAdjClosePrices[slicedAdjClosePrices.length - 1];
             const previousPrice = slicedAdjClosePrices[slicedAdjClosePrices.length - 2];
 
             todayChange = latestPrice - previousPrice;
-            percentageChange = ((todayChange / previousPrice) * 100).toFixed(2); // Percentage change as a number with 2 decimal places
+            percentageChange = Number(((todayChange / previousPrice) * 100).toFixed(2)); // Percentage change as a number with 2 decimal places
         }
 
        // Format todayChange and percentageChange
@@ -67,9 +69,9 @@ const getStockData = asyncHandler(async (req, res, next) => {
 
         // Send the response data
         const responseData = new ApiResponse(200, 'Stock data fetched successfully', result);
-        return res.status(responseData.status).json(responseData);
+        return res.status(responseData.status as number).json(responseData);
 
-    } catch (error) {
+    } catch (error: any) {
         console.log(`Error fetching data from Yahoo Finance ${symbol}:`, error.message);
         return next(new ApiError(500, 'Internal Server Error'));
     }

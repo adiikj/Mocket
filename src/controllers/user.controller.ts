@@ -30,10 +30,10 @@ const transporter = nodemailer.createTransport({
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
         accessToken: token,
   }
-});
+} as any);
 
 // Utility function to generate tokens
-const generateAccessAndRefreshTokens = async (userId) => {
+const generateAccessAndRefreshTokens = async (userId: any) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -47,13 +47,13 @@ const generateAccessAndRefreshTokens = async (userId) => {
     await user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating tokens:", error);
     throw new ApiError(500, "Error generating tokens");
   }
 };
 
-const refreshAccessToken = asyncHandler(async(req,res)=>{
+const refreshAccessToken = asyncHandler(async(req: any, res: any)=>{
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
     if(!incomingRefreshToken){
@@ -61,7 +61,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
     }
 
     try {
-        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const decodedToken: any = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET as string)
     
         const user= await User.findById(decodedToken?._id)
         if(!user){
@@ -76,7 +76,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
             httpOnly : true,
             secure : true
         }
-        const {accessToken, newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
+        const {accessToken, refreshToken: newRefreshToken} = await generateAccessAndRefreshTokens(user._id) as any;
     
         return res
         .status(200)
@@ -84,16 +84,16 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
         .cookie("refreshToken", newRefreshToken, options)
         .json(
             new ApiResponse(200,{
-                accessToken, refreshToken :newRefreshToken
-            },"Access Token refreshed successfully")
+            accessToken, refreshToken :newRefreshToken
+        } as any,"Access Token refreshed successfully")
         )
-    } catch (error) {
+    } catch (error: any) {
         throw new ApiError(401, error?.message || "Invalid refresh token")
     }
 })
 
 // User Login
-const loginUser = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async (req: any, res: any) => {
   const { emailOrUsername, password, pin } = req.body;
   console.log("Login Request:", req.body);
   
@@ -148,7 +148,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 // User Logout
-const logoutUser = asyncHandler(async (req, res) => {
+const logoutUser = asyncHandler(async (req: any, res: any) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
@@ -169,17 +169,17 @@ const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "User logged out successfully"));
+    .json(new ApiResponse(200, "User logged out successfully", null));
 });
 
 // Generate OTP and expiry
-const generateOTP = async (contact, otpMethod, countryCode) => {
+const generateOTP = async (contact: any, otpMethod: any, countryCode: any) => {
   const otp = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit OTP
   const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP expiry: 10 minutes
 
   if (otpMethod === "email") {
     // Send OTP via email
-    await sendOTP(contact, null, otpMethod, otp); // Pass email as the first parameter
+    await sendOTP(contact, null, otpMethod, otp, null); // Pass email as the first parameter
   } else if (otpMethod === "phone") {
     // Send OTP via phone
     await sendOTP(null, contact, otpMethod, otp, countryCode); // Pass phoneNumber and countryCode
@@ -191,7 +191,7 @@ const generateOTP = async (contact, otpMethod, countryCode) => {
 };
 
 // Utility function to send OTP via email or SMS
-const sendOTP = async (email, phoneNumber, otpMethod, otp, countryCode) => {
+const sendOTP = async (email: any, phoneNumber: any, otpMethod: any, otp: any, countryCode: any) => {
   if (otpMethod === "email") {
     // Ensure email is provided for email-based OTP
     if (!email) {
@@ -209,7 +209,7 @@ const sendOTP = async (email, phoneNumber, otpMethod, otp, countryCode) => {
     try {
       const info = await transporter.sendMail(mailOptions);
       console.log("Email sent: ", info.response);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending OTP via email:", error);
       throw new ApiError(500, "Error sending OTP via email");
     }
@@ -229,7 +229,7 @@ const sendOTP = async (email, phoneNumber, otpMethod, otp, countryCode) => {
         to: `${countryCode}${phoneNumber}`, // Format phone number with country code
         from: process.env.TWILIO_PHONE_NUMBER,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending OTP via SMS:", error);
       throw new ApiError(500, "Error sending OTP via SMS");
     }
@@ -239,7 +239,7 @@ const sendOTP = async (email, phoneNumber, otpMethod, otp, countryCode) => {
 };
 
 // User Registration
-const registerUser = asyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req: any, res: any) => {
   const { name, username, email, password, dob, phoneNumber, countryCode, pin, otpMethod } = req.body;
 
   // Validate required fields
@@ -308,7 +308,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 });
 
-const verifyOTP = asyncHandler(async (req, res) => {
+const verifyOTP = asyncHandler(async (req: any, res: any) => {
   const { email, phoneNumber, otp, otpMethod } = req.body;
 
   // Ensure required fields are present
@@ -375,7 +375,7 @@ const verifyOTP = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "User verified and confirmed successfully. You can now log in." });
 });
 
-const getName = asyncHandler(async (req, res) => {
+const getName = asyncHandler(async (req: any, res: any) => {
   // Fetching only the name field of the user by ID
   const user = await User.findById(req.user._id).select("name");
 
@@ -386,7 +386,7 @@ const getName = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 200, data: { name: user.name } });
 });
 
-const getProfile = asyncHandler(async (req, res) => {
+const getProfile = asyncHandler(async (req: any, res: any) => {
   // Fetching the user by ID, excluding the password and refresh token
   const user = await User.findById(req.user._id).select("-password -refreshToken -pin");
 
@@ -397,7 +397,7 @@ const getProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 200, data: {name: user.name, email: user.email, phoneNumber: user.phoneNumber, username: user.username, avatar: user.avatar, dob: user.dob} });
 });
 
-const changeCurrentPasswordAndPin = asyncHandler(async(req,res)=>{
+const changeCurrentPasswordAndPin = asyncHandler(async(req: any, res: any)=>{
   const { oldPassword, newPassword, oldPin, newPin } = req.body;
 
   // Fetch user from the database
@@ -438,16 +438,16 @@ const changeCurrentPasswordAndPin = asyncHandler(async(req,res)=>{
   await user.save({ validateBeforeSave: true });
 
   return res.status(200).json(
-    new ApiResponse(200, {}, "Password and/or PIN changed successfully")
+    new ApiResponse(200, "Password and/or PIN changed successfully", null)
   );
 
 })
 
-const updateUser = asyncHandler(async (req, res) => {
+const updateUser = asyncHandler(async (req: any, res: any) => {
   const { name, username, email, phoneNumber, dob } = req.body;
 
   // Create a dynamic update object
-  const updateFields = {};
+  const updateFields: any = {};
   if (name) updateFields.name = name;
   if (username) updateFields.username = username;
   if (email) updateFields.email = email;
@@ -481,13 +481,13 @@ const updateUser = asyncHandler(async (req, res) => {
     return res.status(200).json(
       new ApiResponse(200, user, "User details updated successfully")
     );
-  } catch (error) {
+  } catch (error: any) {
     // Handle unexpected errors
     throw new ApiError(500, error.message || "Internal Server Error");
   }
 });
 
-const getAvatar = asyncHandler(async (req, res) => {
+const getAvatar = asyncHandler(async (req: any, res: any) => {
   const user = await User.findById(req.user._id); // Assuming you're using authentication middleware to populate req.user
 
   if (!user) {
@@ -504,7 +504,7 @@ const getAvatar = asyncHandler(async (req, res) => {
   });
 });
 
-const updateAvatar = asyncHandler(async (req, res) => {
+const updateAvatar = asyncHandler(async (req: any, res: any) => {
   const avatarLocalPath = req.file?.path;
 
   // Check if avatar file exists

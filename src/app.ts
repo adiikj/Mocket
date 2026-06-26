@@ -6,7 +6,7 @@ import cookieparser from 'cookie-parser';
 const app = express();
 
 const corsOptions = {
-  origin: "https://tradexcel.vercel.app", // Allow only your frontend origin
+  origin: "http://localhost:5173", // Allow only your frontend origin
   credentials: true, // Allow credentials (cookies, authentication headers, etc.)
 };
 

@@ -31,10 +31,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true, // Ensures no two users have the same phone number
     validate: {
-      validator: function (v) {
+      validator: function (v: string) {
         return /\+?[1-9]\d{1,14}$/.test(v); // Simple phone number validation (e.g., +1234567890)
       },
-      message: props => `${props.value} is not a valid phone number!`,
+      message: (props: any) => `${props.value} is not a valid phone number!`,
     },
   },
   
@@ -80,11 +80,11 @@ userSchema.pre("save", async function(next) {
 });
 
 // Method to check if entered password matches the hashed password
-userSchema.methods.isPasswordCorrect = async function(password) {
-  return bcrypt.compare(password, this.password); // Compare entered password with hashed password
+userSchema.methods.isPasswordCorrect = async function(password: string) {
+  return bcrypt.compare(password, this.password as string); // Compare entered password with hashed password
 };
 
-userSchema.methods.isPinCorrect = async function(pin) {
+userSchema.methods.isPinCorrect = async function(pin: string) {
   return pin === this.pin; // Compare entered pin with hashed pin
 };
 
@@ -96,19 +96,19 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
       name: this.name,
       phoneNumber: this.phoneNumber, // Including phone number in JWT
-  }, process.env.ACCESS_TOKEN_SECRET, {
+  }, process.env.ACCESS_TOKEN_SECRET as string, {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-  });
+  } as jwt.SignOptions);
 };
 
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign({
       _id: this._id,
-  }, process.env.REFRESH_TOKEN_SECRET, {
+  }, process.env.REFRESH_TOKEN_SECRET as string, {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-  });
+  } as jwt.SignOptions);
 };
 
 
 // Create and export the User model
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<any>("User", userSchema);

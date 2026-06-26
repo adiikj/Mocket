@@ -54,18 +54,18 @@ const pendingUserSchema = new mongoose.Schema({
     required: true,
     enum: ['email', 'phone'],
   },
-}, {timestamp: true });
+}, {timestamps: true });
 
 // Create an index for the `phoneNumber` and `email` to make sure they are unique
 pendingUserSchema.index({ phoneNumber: 1, email: 1 }, { unique: true });
 
 // Middleware to update `updatedAt` field on every update
 pendingUserSchema.pre('save', function (next) {
-  this.updatedAt = Date.now();
+  this.updatedAt = new Date();
   next();
 });
 
 // Create the model for PendingUser
-const PendingUser = mongoose.model('PendingUser', pendingUserSchema);
+const PendingUser = mongoose.model<any>('PendingUser', pendingUserSchema);
 
 export { PendingUser };
