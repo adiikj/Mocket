@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Epilogue:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@layer base {
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+
+  .clip-path-custom {
+    clip-path: polygon(10% 10%, 90% 5%, 80% 95%, 20% 90%); /* Creates a tilted quadrilateral */
+    transform: rotate(-10deg); /* Rotate image slightly if needed */
+  }
+
+  /* Add this in your CSS file */
+.pop-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(0% 0%, 70% 0%, 100% 100%, 0% 100%); /* Create the trapezoidal shape */
+  transform: scaleX(1.2); /* Make the left part larger (scale image) */
+  object-fit: cover; /* Make sure the image fills the div without distortion */
+  transition: transform 0.3s ease; /* Optional: Smooth transition when hovered */
+}
+
+.pop-image:hover {
+  transform: scaleX(1.0); /* Scale down when hovered for effect */
+}
+
+/* In your global styles (or root container) */
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+
+/* Global transparent scrollbar for the entire app */
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Custom scrollbar for the stock list container */
+.scrollable-area::-webkit-scrollbar {
+  width: 8px; /* Define width of scrollbar */
+}
+
+.scrollable-area::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* Dark color for the thumb */
+  border-radius: 10px;
+}
+
+.scrollable-area::-webkit-scrollbar-track {
+  background-color: transparent; /* Light color for the track */
+}
+
+/* Custom scrollbar for Firefox */
+.scrollable-area {
+  scrollbar-width: thin;
+  scrollbar-color: gray transparent;
+}
+
+/* Optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+  background: #FF0000;
+}
+
+@keyframes lineAnimation {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* Global styles for all animated lines */
+.animate-line {
+  width: 0%;
+  animation: lineAnimation 1s ease-out forwards;
+}
